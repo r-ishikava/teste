@@ -1,0 +1,157 @@
+<head>
+    <title>Youtube Slicer</title>
+</head>
+<body>
+    <form method="post">
+      <input type="url" name="video_url" placeholder="Video url">
+      <input type="submit">
+    </form>
+    <div id="player" style="background: black; width: 600px; height: 360px"></div>
+    <div>
+      <p>Start Time</p>
+      <div><input type="range" id="start_time" style="width: 600px"></div>
+      <p>End Time</p>
+      <div><input type="range" id="end_time" style="width: 600px"></div>
+    </div>
+    <form method="post" action="/download">
+        <div>
+            <input type="number" class="input_value" id="hours_input_start" name="start_hours" value="00" min="00" max="99">
+            <input type="number" class="input_value" id="minutes_input_start" name="start_minutes" value="00" min="00" max="59">
+            <input type="number" class="input_value" id="seconds_input_start" name="start_seconds" value="00" min="00" max="59">
+            <input type="number" class="input_value" id="milliseconds_input_start" name="start_milliseconds" value="000" min="000" max="999">
+        </div>
+        <div>
+            <input type="number" class="input_value" id="hours_input_end" name="end_hours" value="00" min="00" max="99">
+            <input type="number" class="input_value" id="minutes_input_end" name="end_minutes" value="00" min="00" max="59">
+            <input type="number" class="input_value" id="seconds_input_end" name="end_seconds" value="00" min="00" max="59">
+            <input type="number" class="input_value" id="milliseconds_input_end" name="end_milliseconds" value="000" min="00" max="999">
+        </div>
+        <input type="submit">
+        <input type="hidden" name="video_url" value=<%= videoUrl %>>
+    </form>
+    <script>
+      var regex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/
+      var url = "<%= videoUrl %>"
+      var videoId = url.match(regex)[1]
+      
+      var tag = document.createElement("script")
+      tag.src = "https://www.youtube.com/iframe_api"
+
+      var firstScriptTag = document.getElementsByTagName("script")[0]
+      firstScriptTag.parentNode.insertBefore(tag, firstScriptTag)
+
+      var player
+      window.onYouTubeIframeAPIReady = function() {
+        player = new YT.Player("player", {
+          height: "360",
+          width: "640",
+          videoId,
+          events: {
+            "onReady": onPlayerReady,
+            "onStateChange": onStateChange
+          }
+        })
+      }
+
+      function timestampFromSeconds(seconds) {
+        let hours = Math.floor(seconds / 3600)
+        seconds = seconds % 3600
+        let minutes = Math.floor(seconds / 60)
+        seconds = seconds % 60
+
+        return {
+          hours,
+          minutes,
+          seconds
+        }
+      }
+
+      function updateVideoRanges() {
+        player.loadVideoById({
+          videoId,
+          startSeconds: parseInt(document.getElementById("start_time").value),
+          endSeconds: parseInt(document.getElementById("end_time").value)
+        })
+      }
+
+      function changeStartInput(event) {
+        let { hours, minutes, seconds } = timestampFromSeconds(parseInt(event.target.value))
+        const startHours = document.getElementById("hours_input_start")
+        const startMinutes = document.getElementById("minutes_input_start")
+        const startSeconds = document.getElementById("seconds_input_start")
+
+        startHours.value = hours
+        startMinutes.value = minutes
+        startSeconds.value = seconds
+
+        updateVideoRanges()
+      }
+
+      function changeEndInput(event) {
+        let { hours, minutes, seconds } = timestampFromSeconds(parseInt(event.target.value))
+        const startHours = document.getElementById("hours_input_end")
+        const startMinutes = document.getElementById("minutes_input_end")
+        const startSeconds = document.getElementById("seconds_input_end")
+
+        startHours.value = hours
+        startMinutes.value = minutes
+        startSeconds.value = seconds
+
+        updateVideoRanges()
+      }
+
+      function changeSliders() {
+        const startHours = parseInt(document.getElementById("hours_input_start").value)
+        const startMinutes = parseInt(document.getElementById("minutes_input_start").value)
+        const startSeconds = parseInt(document.getElementById("seconds_input_start").value)
+        const endHours = parseInt(document.getElementById("hours_input_end").value)
+        const endMinutes = parseInt(document.getElementById("minutes_input_end").value)
+        const endSeconds = parseInt(document.getElementById("seconds_input_end").value)
+
+        const totalStartSeconds = startHours * 3600 + startMinutes * 60 + startSeconds
+        const totalEndSeconds = endHours * 3600 + endMinutes * 60 + endSeconds
+
+        console.log(totalStartSeconds)
+        console.log(totalEndSeconds)
+
+        document.getElementById("start_time").value = totalStartSeconds
+        document.getElementById("end_time").value = totalEndSeconds
+
+        updateVideoRanges()
+      }
+
+      function onPlayerReady(event) {
+        event.target.playVideo()
+        const duration = player.getDuration()
+
+        let startTimeSlider = document.getElementById("start_time")
+        let endTimeSlider = document.getElementById("end_time")
+
+        startTimeSlider.max = duration
+        startTimeSlider.value = 0
+        endTimeSlider.max = duration
+        endTimeSlider.value = duration
+
+        startTimeSlider.addEventListener("input", changeStartInput)
+        endTimeSlider.addEventListener("input", changeEndInput)
+
+        startTimeSlider.dispatchEvent(new Event("input"))
+        endTimeSlider.dispatchEvent(new Event("input"))
+
+        let inputs = document.getElementsByClassName("input_value")
+        for(var i=0; i < inputs.length; i++) {
+          inputs[i].addEventListener("change", changeSliders)
+        }
+      }
+
+      function onStateChange(state) {
+        if (state.data == YT.PlayerState.ENDED) {
+          player.loadVideoById({
+            videoId,
+            startSeconds: parseInt(document.getElementById("start_time").value),
+            endSeconds: parseInt(document.getElementById("end_time").value)
+          })
+        }
+      }
+    </script>
+</body>
