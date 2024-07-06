@@ -24,6 +24,10 @@ async function downloadVideo(videoURL, options, outputFilePath, startTime, endTi
             .setDuration(timeOffset)
             .output("output.mp4")
             .run()
+            .on("error", (err) => {
+                console.log(err.message)
+                reject("error")
+            })
             .on("end", () => {
                 resolve()
             })
@@ -60,7 +64,13 @@ app.post("/download", async (req, res) => {
         filter: "audioandvideo"
     }
 
-    await downloadVideo(url, options, outputFilePath, a / 1000, b / 1000)
+    try {
+        await downloadVideo(url, options, outputFilePath, a / 1000, b / 1000)
+    } catch (err) {
+        console.error(err)
+        res.send("Deu ruim")
+        return
+    }
     res.setHeader('Content-Disposition', 'attachment; filename="video.mp4"');
     res.setHeader('Content-Type', 'video/mp4');
     res.download(__dirname + "/output.mp4")
