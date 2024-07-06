@@ -49,7 +49,6 @@ app.post("/", (req, res) => {
 
 app.post("/download", async (req, res) => {
     url = req.body.video_url
-    console.log(req.body)
     const {start_hours, start_minutes, start_seconds, start_milliseconds} = req.body
     const {end_hours, end_minutes, end_seconds, end_milliseconds} = req.body
 
