@@ -17,11 +17,11 @@ async function downloadVideo(videoURL, options, outputFilePath, startTime, endTi
 
     timeOffset = (endTime - startTime)
 
-    console.log(startTime)
-    console.log(endTime)
-    console.log(timeOffset)
+    console.log("start time:" + startTime)
+    console.log("end time:" + endTime)
+    console.log("offset:" + timeOffset)
         
-    await new Promise((resolve) => {
+    await new Promise((resolve, reject) => {
         ffmpeg.setFfmpegPath(ffmpegPath)
         ffmpeg("./input.mp4")
             .outputOptions([
@@ -65,8 +65,13 @@ app.post("/download", async (req, res) => {
     const {start_hours, start_minutes, start_seconds, start_milliseconds} = req.body
     const {end_hours, end_minutes, end_seconds, end_milliseconds} = req.body
 
+    console.log(req.body)
+
     let a = new Date(1970, 0, 1, start_hours, start_minutes, start_seconds, start_milliseconds) - 3*3600*1000
     let b = new Date(1970, 0, 1, start_hours, end_minutes, end_seconds, end_milliseconds) - 3*3600*1000
+
+    console.log("a"+a)
+    console.log("b"+b)
 
     options = {
         quality: "lowest",
