@@ -79,13 +79,14 @@ app.post("/download", async (req, res) => {
     }
 
     try {
+        res.writeContinue()
         await downloadVideo(url, options, outputFilePath, a / 1000, b / 1000)
+        res.download(__dirname + "/output.mp4")
     } catch (err) {
         console.error(err)
         res.send("Deu ruim")
         return
     }
-    res.download(__dirname + "/output.mp4")
 })
 
 app.listen(port, () => {
