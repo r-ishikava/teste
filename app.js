@@ -67,8 +67,8 @@ app.post("/download", async (req, res) => {
 
     console.log(req.body)
 
-    let a = new Date(1970, 0, 1, start_hours, start_minutes, start_seconds, start_milliseconds) - 3*3600*1000
-    let b = new Date(1970, 0, 1, start_hours, end_minutes, end_seconds, end_milliseconds) - 3*3600*1000
+    let a = new Date(1970, 0, 1, start_hours, start_minutes, start_seconds, start_milliseconds)
+    let b = new Date(1970, 0, 1, start_hours, end_minutes, end_seconds, end_milliseconds)
 
     console.log("a"+a)
     console.log("b"+b)
