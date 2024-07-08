@@ -15,6 +15,8 @@ async function downloadVideo(videoURL, options, outputFilePath, startTime, endTi
             })
     })
 
+    console.log("Download Finished")
+
     timeOffset = (endTime - startTime)
 
     await new Promise((resolve, reject) => {
@@ -34,7 +36,7 @@ async function downloadVideo(videoURL, options, outputFilePath, startTime, endTi
     })
 
     filestatus = 1
-    console.log("Nooooossa")
+    console.log("File Ready")
 }
 
 const app = express()
