@@ -17,19 +17,24 @@ async function downloadVideo(videoURL, options, outputFilePath, startTime, endTi
 
     timeOffset = (endTime - startTime)
 
+    console.log(startTime)
+    console.log(endTime)
+    console.log(timeOffset)
+        
     await new Promise((resolve) => {
         ffmpeg.setFfmpegPath(ffmpegPath)
         ffmpeg("./input.mp4")
             .outputOptions([
                 "-threads", "1",
-                "-bufsize", "500k"
+                "-bufsize", "256k",
+                "-preset", "fast"
             ])
             .setStartTime(startTime)
             .setDuration(timeOffset)
             .output("output.mp4")
             .run()
             .on("error", (err) => {
-                console.log(err.message)
+                console.error(err.message)
                 reject("error")
             })
             .on("end", () => {
