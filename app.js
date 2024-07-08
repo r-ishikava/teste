@@ -7,6 +7,7 @@ const fs = require("fs")
 const outputFilePath = "./input.mp4"
 
 async function downloadVideo(videoURL, options, outputFilePath, startTime, endTime) {
+    filestatus = 0
     await new Promise((resolve) => {
         ytdl(videoURL, options)
             .pipe(fs.createWriteStream(outputFilePath))
