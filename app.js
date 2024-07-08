@@ -17,21 +17,25 @@ async function downloadVideo(videoURL, options, outputFilePath, startTime, endTi
 
     timeOffset = (endTime - startTime)
 
-    /* await new Promise((resolve) => { */
-    /*     ffmpeg.setFfmpegPath(ffmpegPath) */
-    /*     ffmpeg("./input.mp4") */
-    /*         .setStartTime(startTime) */
-    /*         .setDuration(timeOffset) */
-    /*         .output("output.mp4") */
-    /*         .run() */
-    /*         .on("error", (err) => { */
-    /*             console.log(err.message) */
-    /*             reject("error") */
-    /*         }) */
-    /*         .on("end", () => { */
-    /*             resolve() */
-    /*         }) */
-    /* }) */
+    await new Promise((resolve) => {
+        ffmpeg.setFfmpegPath(ffmpegPath)
+        ffmpeg("./input.mp4")
+            .outputOptions([
+                "-threads", "1",
+                "-bufsize", "500k"
+            ])
+            .setStartTime(startTime)
+            .setDuration(timeOffset)
+            .output("output.mp4")
+            .run()
+            .on("error", (err) => {
+                console.log(err.message)
+                reject("error")
+            })
+            .on("end", () => {
+                resolve()
+            })
+    })
 }
 
 const app = express()
@@ -73,7 +77,7 @@ app.post("/download", async (req, res) => {
     }
     res.setHeader('Content-Disposition', 'attachment; filename="video.mp4"');
     res.setHeader('Content-Type', 'video/mp4');
-    res.download(__dirname + "/input.mp4")
+    res.download(__dirname + "/output.mp4")
 })
 
 app.listen(port, () => {
