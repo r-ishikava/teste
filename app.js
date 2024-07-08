@@ -17,10 +17,6 @@ async function downloadVideo(videoURL, options, outputFilePath, startTime, endTi
 
     timeOffset = (endTime - startTime)
 
-    console.log("start time:" + startTime)
-    console.log("end time:" + endTime)
-    console.log("offset:" + timeOffset)
-        
     await new Promise((resolve, reject) => {
         ffmpeg.setFfmpegPath(ffmpegPath)
         ffmpeg("./input.mp4")
@@ -36,6 +32,8 @@ async function downloadVideo(videoURL, options, outputFilePath, startTime, endTi
                 resolve()
             })
     })
+
+    filestatus = 1
 }
 
 const app = express()
@@ -60,18 +58,15 @@ app.post("/", (req, res) => {
     res.render("slicer", { videoUrl: url })
 })
 
+var filestatus = 0
+
 app.post("/download", async (req, res) => {
     url = req.body.video_url
     const {start_hours, start_minutes, start_seconds, start_milliseconds} = req.body
     const {end_hours, end_minutes, end_seconds, end_milliseconds} = req.body
 
-    console.log(req.body)
-
-    let a = new Date(1970, 0, 1, start_hours, start_minutes, start_seconds, start_milliseconds)
-    let b = new Date(1970, 0, 1, start_hours, end_minutes, end_seconds, end_milliseconds)
-
-    console.log("a"+a)
-    console.log("b"+b)
+    let a = new Date(1970, 0, 1, start_hours, start_minutes, start_seconds, start_milliseconds) - 3*3600*1000
+    let b = new Date(1970, 0, 1, start_hours, end_minutes, end_seconds, end_milliseconds) - 3*3600*1000
 
     options = {
         quality: "lowest",
@@ -79,13 +74,26 @@ app.post("/download", async (req, res) => {
     }
 
     try {
-        res.writeContinue()
-        await downloadVideo(url, options, outputFilePath, a / 1000, b / 1000)
-        res.download(__dirname + "/output.mp4")
+        downloadVideo(url, options, outputFilePath, a / 1000, b / 1000)
     } catch (err) {
         console.error(err)
         res.send("Deu ruim")
         return
+    }
+
+    res.redirect("/oymate")
+})
+
+app.get("/success", (req, res) => {
+    res.download(__dirname + "/output.mp4")
+    filestatus = 0
+})
+
+app.get("/oymate", (req, res) => {
+    if (filestatus) {
+        res.redirect("/success")
+    } else {
+        res.render("queue")
     }
 })
 
