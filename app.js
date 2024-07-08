@@ -34,6 +34,7 @@ async function downloadVideo(videoURL, options, outputFilePath, startTime, endTi
     })
 
     filestatus = 1
+    console.log("Nooooossa")
 }
 
 const app = express()
@@ -66,7 +67,7 @@ app.post("/download", async (req, res) => {
     const {end_hours, end_minutes, end_seconds, end_milliseconds} = req.body
 
     let a = new Date(1970, 0, 1, start_hours, start_minutes, start_seconds, start_milliseconds)
-    let b = new Date(1970, 0, 1, start_hours, end_minutes, end_seconds, end_milliseconds)
+    let b = new Date(1970, 0, 1, end_hours, end_minutes, end_seconds, end_milliseconds)
 
     options = {
         quality: "lowest",
