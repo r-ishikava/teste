@@ -45,6 +45,11 @@ app.use(express.static(__dirname))
 app.use(express.urlencoded({extended: false}))
 app.set("view engine", "ejs")
 app.set("views", __dirname + "/views")
+app.use((req, res, next) => {
+    req.setTimeout(300000);
+    res.setTimeout(300000);
+    next();
+});
 
 app.get("/", (req, res) => {
     res.render("index")
@@ -80,8 +85,6 @@ app.post("/download", async (req, res) => {
         res.send("Deu ruim")
         return
     }
-    res.setHeader('Content-Disposition', 'attachment; filename="video.mp4"');
-    res.setHeader('Content-Type', 'video/mp4');
     res.download(__dirname + "/output.mp4")
 })
 
