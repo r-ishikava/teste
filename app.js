@@ -5,6 +5,7 @@ const ffmpegPath = require("@ffmpeg-installer/ffmpeg").path
 const fs = require("fs")
 
 const outputFilePath = "./input.mp4"
+const outputAudioPath = "./audioinput.webm"
 
 async function downloadVideo(videoURL, options, outputFilePath, startTime, endTime) {
     filestatus = 0
@@ -16,13 +17,24 @@ async function downloadVideo(videoURL, options, outputFilePath, startTime, endTi
             })
     })
 
+    await new Promise((resolve) => {
+        ytdl(videoURL, {filter: "audioonly", quality: "251"})
+            .pipe(fs.createWriteStream(outputAudioPath))
+            .on("close", () => {
+                resolve()
+            })
+    })
+
     console.log("Download Finished")
 
     timeOffset = (endTime - startTime)
 
     await new Promise((resolve, reject) => {
         ffmpeg.setFfmpegPath(ffmpegPath)
-        ffmpeg("./input.mp4")
+        ffmpeg()
+            .addInput("./input.mp4")
+            .addInput("./audioinput.webm")
+            .outputOptions("-c:v copy")
             .setStartTime(startTime)
             .setDuration(timeOffset)
             .addOption(["-preset", "ultrafast"])
@@ -73,9 +85,13 @@ app.post("/download", async (req, res) => {
     let a = new Date(1970, 0, 1, start_hours, start_minutes, start_seconds, start_milliseconds)
     let b = new Date(1970, 0, 1, end_hours, end_minutes, end_seconds, end_milliseconds)
 
+    /* options = { */
+    /*     quality: "lowest", */
+    /*     filter: "audioandvideo" */
+    /* } */
+
     options = {
-        quality: "lowest",
-        filter: "audioandvideo"
+        quality: "133"
     }
 
     try {
