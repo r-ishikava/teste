@@ -25,6 +25,7 @@ async function downloadVideo(videoURL, options, outputFilePath, startTime, endTi
         ffmpeg("./input.mp4")
             .setStartTime(startTime)
             .setDuration(timeOffset)
+            .addOption(["-preset", "ultrafast"])
             .output("output.mp4")
             .run()
             .on("error", (err) => {
