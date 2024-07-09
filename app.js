@@ -33,10 +33,12 @@ async function downloadVideo(videoURL, options, outputFilePath, startTime, endTi
         ffmpeg.setFfmpegPath(ffmpegPath)
         ffmpeg()
             .addInput("./input.mp4")
-            .addInput("./audioinput.webm")
-            .outputOptions("-c:v copy")
             .setStartTime(startTime)
             .setDuration(timeOffset)
+            .addInput("./audioinput.webm")
+            .setStartTime(startTime)
+            .setDuration(timeOffset)
+            .outputOptions("-c:v copy")
             .addOption(["-preset", "ultrafast"])
             .output("output.mp4")
             .run()
@@ -84,11 +86,6 @@ app.post("/download", async (req, res) => {
 
     let a = new Date(1970, 0, 1, start_hours, start_minutes, start_seconds, start_milliseconds)
     let b = new Date(1970, 0, 1, end_hours, end_minutes, end_seconds, end_milliseconds)
-
-    /* options = { */
-    /*     quality: "lowest", */
-    /*     filter: "audioandvideo" */
-    /* } */
 
     options = {
         quality: "133"
